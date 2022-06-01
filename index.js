@@ -1,5 +1,4 @@
 const express = require('express');
-const { nanoid } = require('nanoid');
 const Firestore = require('@google-cloud/firestore')
 const db = new Firestore();
 const app = express();
@@ -14,19 +13,18 @@ app.get('/', async (req, res) => {
 })
 
 //membuat orderan panggil teknisi
-app.post('/orders', async (req, res) => {
-	const id = nanoid(10);
-    const data = {
-		id: req.body.id,
-        layanan: req.body.layanan,
-        alamat: req.body.alamat,
-        wilayah: req.body.wilayah,
-        jadwal: req.body.type,
-		deskripsi: req.body.deskripsi,
-		teknisi: req.body.teknisi
-    }
-    await db.collection('orders').doc().set(data);
-    res.json({ status: 'success', data: { order: data } });
+app.post('/orders',async (req,res)=>{
+  let docRef=db.collection('orders')
+  await docRef.add({
+    id: req.body.id,
+    layanan: req.body.layanan,
+    alamat: req.body.alamat,
+    wilayah: req.body.wilayah,
+    jadwal: req.body.type,
+	deskripsi: req.body.deskripsi,
+	teknisi: req.body.teknisi
+  });
+ res.json({message:'order success'});
 })
 
 //menampilkan data orderan berdasarkan id
@@ -44,8 +42,11 @@ app.get('/orders/:id', async (req, res) => {
 
 //menampilkan semua orderan
 app.get('/allorder', async (req, res) => {
-	const snapshot = await db.collection('orders').get();
-	snapshot.forEach((doc) => {
-	  console.log(doc.id, '=>', doc.data());
-	});
+  let ord=[]
+   const oreder = await db.collection('orders').get()
+  if (user.docs.length > 0) {
+    for (const orders of orders.docs) {
+     ord.push(orders.data())
+  }}
+  res.json(ord)
 })
