@@ -1,6 +1,7 @@
 const express = require('express');
-const Firestore = require('@google-cloud/firestore')
+const Firestore = require('@google-cloud/firestore');
 const db = new Firestore();
+const { nanoid } = require('nanoid');
 const app = express();
 app.use(express.json());
 const port = process.env.PORT || 8080;
@@ -14,9 +15,11 @@ app.get('/', async (req, res) => {
 
 //membuat orderan panggil teknisi
 app.post('/orders',async (req,res)=>{
+  const id = nanoid(10);
   let docRef=db.collection('orders')
   await docRef.add({
     id: req.body.id,
+	id_user : req.body.id_user,
     layanan: req.body.layanan,
     alamat: req.body.alamat,
     wilayah: req.body.wilayah,
@@ -43,9 +46,9 @@ app.get('/orders/:id', async (req, res) => {
 //menampilkan semua orderan
 app.get('/allorder', async (req, res) => {
   let ord=[]
-   const oreder = await db.collection('orders').get()
-  if (user.docs.length > 0) {
-    for (const orders of orders.docs) {
+   const order = await db.collection('orders').where('id_user', '==', id_user).get()
+  if (order.docs.length > 0) {
+    for (const orders of order.docs) {
      ord.push(orders.data())
   }}
   res.json(ord)
