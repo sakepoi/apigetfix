@@ -23,7 +23,7 @@ app.post('/orders',async (req,res)=>{
     layanan: req.body.layanan,
     alamat: req.body.alamat,
     wilayah: req.body.wilayah,
-    jadwal: req.body.type,
+    jadwal: req.body.jadwal,
 	deskripsi: req.body.deskripsi,
 	teknisi: req.body.teknisi
   });
