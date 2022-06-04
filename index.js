@@ -15,11 +15,11 @@ app.get('/', async (req, res) => {
 
 //membuat orderan panggil teknisi
 app.post('/orders',async (req,res)=>{
-  const id = nanoid(10);
   let docRef=db.collection('orders')
   await docRef.add({
-    id: req.body.id,
+    id: nanoid(10),
 	id_user : req.body.id_user,
+	id_teknisi : req.body.id_teknisi,
     layanan: req.body.layanan,
     alamat: req.body.alamat,
     wilayah: req.body.wilayah,
@@ -43,9 +43,10 @@ app.get('/orders/:id', async (req, res) => {
     }
 })
 
-//menampilkan semua orderan
-app.get('/allorder', async (req, res) => {
+//menampilkan semua orderan user berdasarkan id_user
+app.get('/allorder:id_user', async (req, res) => {
   let ord=[]
+   const id_user = req.params.id_user;
    const order = await db.collection('orders').where('id_user', '==', id_user).get()
   if (order.docs.length > 0) {
     for (const orders of order.docs) {
