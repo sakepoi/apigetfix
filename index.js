@@ -13,6 +13,7 @@ app.get('/', async (req, res) => {
     res.json({status: 'GetFix is ready.'});
 })
 
+
 //membuat orderan panggil teknisi
 app.post('/orders',async (req,res)=>{
   let docRef=db.collection('orders')
@@ -27,7 +28,11 @@ app.post('/orders',async (req,res)=>{
 	deskripsi: req.body.deskripsi,
 	teknisi: req.body.teknisi
   });
- res.json({message:'order success'});
+ res.json({message:'order success',
+	data: {
+        id: id,
+    },
+ });
 })
 
 //menampilkan data orderan berdasarkan id
@@ -47,7 +52,7 @@ app.get('/orders/:id', async (req, res) => {
 app.get('/allorder:id_user', async (req, res) => {
   let ord=[]
    const id_user = req.params.id_user;
-   const order = await db.collection('orders').where('id_user', '==', id_user).get()
+   const order = await db.collection('orders').where('id_user', '==', id_user).get();
   if (order.docs.length > 0) {
     for (const orders of order.docs) {
      ord.push(orders.data())
