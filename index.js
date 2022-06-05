@@ -28,8 +28,7 @@ app.post('/orders',async (req,res)=>{
 	deskripsi: req.body.deskripsi,
 	teknisi: req.body.teknisi
   });
-  res.json({message:'order success', data : {pesananID: id}});
- 
+ res.json({message:'order success'});
 })
 
 //menampilkan data orderan berdasarkan id
@@ -46,14 +45,13 @@ app.get('/orders/:id', async (req, res) => {
 })
 
 //menampilkan semua orderan user berdasarkan id_user
-app.get('/allorder:iduser', async (req, res) => {
+app.get('/allorder/:id_user', async (req, res) => {
   const id_user = req.params.id_user;
-  const snapshot = await db.collection('orders').where('id_user', '==', iduser).get();
-  if (snapshot.empty) {
-    console.log('Data Tidak Ditemukan');
-	return;
-  }
-  snapshot.forEach(doc => {
-	console.log(doc.id, '=>', doc.data());
-  });
+  let ord=[]
+   const order = await db.collection('orders').where('id_user', '==', id_user).get()
+  if (user.docs.length > 0) {
+    for (const orders of orders.docs) {
+     ord.push(orders.data())
+  }}
+  res.json(ord)
 })
