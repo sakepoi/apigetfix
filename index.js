@@ -49,8 +49,8 @@ app.get('/allorder/:id_user', async (req, res) => {
   const id_user = req.params.id_user;
   let ord=[]
    const order = await db.collection('orders').where('id_user', '==', id_user).get()
-  if (user.docs.length > 0) {
-    for (const orders of orders.docs) {
+  if (order.docs.length > 0) {
+    for (const orders of order.docs) {
      ord.push(orders.data())
   }}
   res.json(ord)
