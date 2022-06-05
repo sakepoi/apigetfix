@@ -19,8 +19,8 @@ app.post('/orders',async (req,res)=>{
   let docRef=db.collection('orders')
   await docRef.add({
     id: nanoid(10),
-	id_user : req.body.id_user,
-	id_teknisi : req.body.id_teknisi,
+	id_user : req.body.uid,
+	id_teknisi : req.body.uid,
     layanan: req.body.layanan,
     alamat: req.body.alamat,
     wilayah: req.body.wilayah,
@@ -28,7 +28,7 @@ app.post('/orders',async (req,res)=>{
 	deskripsi: req.body.deskripsi,
 	teknisi: req.body.teknisi
   });
- res.json({message:'order success'});
+ res.send({message:'order success', data:{id : id});
 })
 
 //menampilkan data orderan berdasarkan id
