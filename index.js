@@ -16,8 +16,7 @@ app.get('/', async (req, res) => {
 
 //membuat orderan panggil teknisi
 app.post('/orders',async (req,res)=>{
-  let docRef=db.collection('orders')
-  await docRef.add({
+  const data ={
     id: nanoid(10),
 	id_user : req.body.id_user,
 	id_teknisi : req.body.id_teknisi,
@@ -27,12 +26,10 @@ app.post('/orders',async (req,res)=>{
     jadwal: req.body.jadwal,
 	deskripsi: req.body.deskripsi,
 	teknisi: req.body.teknisi
-  });
- res.json({message:'order success',
-	data: {
-        id: id,
-    },
- });
+  }
+  await db.collection('orders').doc().set(data);
+  res.json({message:'order success', data : {pesananID: id}});
+ 
 })
 
 //menampilkan data orderan berdasarkan id
@@ -50,12 +47,13 @@ app.get('/orders/:id', async (req, res) => {
 
 //menampilkan semua orderan user berdasarkan id_user
 app.get('/allorder:id_user', async (req, res) => {
-  let ord=[]
-   const id_user = req.params.id_user;
-   const order = await db.collection('orders').where('id_user', '==', id_user).get();
-  if (order.docs.length > 0) {
-    for (const orders of order.docs) {
-     ord.push(orders.data())
-  }}
-  res.json(ord)
+  const id_user = req.params.id_user;
+  const snapshot = await db.collection('orders').where('id_user', '==', id_user).get();
+  if (snapshop.empty) {
+    console.log('Data Tidak Ditemukan');
+	return;
+  }
+  snapshot.forEach(doc => {
+	console.log(doc.id, '=>', doc.data());
+  });
 })
