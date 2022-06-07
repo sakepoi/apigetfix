@@ -1,4 +1,5 @@
 const express = require('express');
+const auth = require('./auth');
 const Firestore = require('@google-cloud/firestore');
 const db = new Firestore();
 const { nanoid } = require('nanoid');
@@ -16,23 +17,28 @@ app.get('/', async (req, res) => {
 
 //membuat orderan panggil teknisi
 app.post('/orders',async (req,res)=>{
+  const insertedAt = new Date().toISOString();
+  const updatedAt = insertedAt;
   let docRef=db.collection('orders')
   await docRef.add({
     id: nanoid(10),
-	id_user : req.body.uid,
-	id_teknisi : req.body.uid,
+	username : req.body.username,
+	userTeknisi : req.body.userTeknisi,
     layanan: req.body.layanan,
-    alamat: req.body.alamat,
+    alamat: req.body.alamat, 
     wilayah: req.body.wilayah,
     jadwal: req.body.jadwal,
+	waktu : req.body.waktu,
 	deskripsi: req.body.deskripsi,
-	teknisi: req.body.teknisi
+	teknisi: req.body.teknisi,
+	insertedAt: req.body.insertedAt,
+	updatedAt : req.body.updatedAt
   });
- res.send({message:'order success', data:{id : id});
+ res.send({status :'order success', data:{id : id});
 })
 
 //menampilkan data orderan berdasarkan id
-app.get('/orders/:id', async (req, res) => {
+app.get('/orders/:id', checkAuth, async (req, res) => {
     const id = req.params.id;
     const query = db.collection('orders').where('id', '==', id);
     const querySnapshot = await query.get();
@@ -45,13 +51,39 @@ app.get('/orders/:id', async (req, res) => {
 })
 
 //menampilkan semua orderan user berdasarkan id_user
-app.get('/allorder/:id_user', async (req, res) => {
-  const id_user = req.params.id_user;
+app.get('/allorder/:username', async (req, res) => {
+  const username = req.params.username;
   let ord=[]
-   const order = await db.collection('orders').where('id_user', '==', id_user).get()
+   const order = await db.collection('orders').where('username', '==', username).get()
   if (order.docs.length > 0) {
     for (const orders of order.docs) {
      ord.push(orders.data())
   }}
   res.json(ord)
+})
+
+//mengambil data user by username
+app.get('/user/:username', checkAuth, async (req, res) => {
+    const username = req.params.username;
+    const query = db.collection('user').where('username', '==', username);
+    const querySnapshot = await query.get();
+    if (querySnapshot.size > 0) {
+        res.json(querySnapshot.docs[0].data());
+    }
+    else {
+        res.json({status: 'Not found'});
+    }
+})
+
+//mengambil data teknisi by username
+app.get('/teknisi/:username', checkAuth, async (req, res) => {
+    const username = req.params.username;
+    const query = db.collection('teknisi').where('username', '==', username);
+    const querySnapshot = await query.get();
+    if (querySnapshot.size > 0) {
+        res.json(querySnapshot.docs[0].data());
+    }
+    else {
+        res.json({status: 'Not found'});
+    }
 })
