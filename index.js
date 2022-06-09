@@ -17,10 +17,7 @@ app.get('/', async (req, res) => {
 
 //membuat orderan panggil teknisi
 app.post('/orders',async (req,res)=>{
-  const insertedAt = new Date().toISOString();
-  const updatedAt = insertedAt;
-  let docRef=db.collection('orders')
-  await docRef.add({
+  const data = {
     id: nanoid(10),
 	username : req.body.username,
 	userTeknisi : req.body.userTeknisi,
@@ -30,17 +27,16 @@ app.post('/orders',async (req,res)=>{
     jadwal: req.body.jadwal,
 	waktu : req.body.waktu,
 	deskripsi: req.body.deskripsi,
-	teknisi: req.body.teknisi,
-	insertedAt: req.body.insertedAt,
-	updatedAt : req.body.updatedAt
-  });
- res.send({status :'order success', data:{id : id});
+	keterangan: "Pesanan Success"
+  }
+  await db.collection('orders').doc().set(data);
+  res.json({message:'order success', data: {pesanan: data}});
 })
 
-//menampilkan data orderan berdasarkan id
-app.get('/orders/:id', checkAuth, async (req, res) => {
-    const id = req.params.id;
-    const query = db.collection('orders').where('id', '==', id);
+//menampilkan data orderan berdasarkan username
+app.get('/orders/:username', async (req, res) => {
+    const username = req.params.username;
+    const query = db.collection('orders').where('username', '==', username);
     const querySnapshot = await query.get();
     if (querySnapshot.size > 0) {
         res.json(querySnapshot.docs[0].data());
@@ -63,7 +59,7 @@ app.get('/allorder/:username', async (req, res) => {
 })
 
 //mengambil data user by username
-app.get('/user/:username', checkAuth, async (req, res) => {
+app.get('/user/:username', async (req, res) => {
     const username = req.params.username;
     const query = db.collection('user').where('username', '==', username);
     const querySnapshot = await query.get();
@@ -76,7 +72,7 @@ app.get('/user/:username', checkAuth, async (req, res) => {
 })
 
 //mengambil data teknisi by username
-app.get('/teknisi/:username', checkAuth, async (req, res) => {
+app.get('/teknisi/:username',  async (req, res) => {
     const username = req.params.username;
     const query = db.collection('teknisi').where('username', '==', username);
     const querySnapshot = await query.get();
@@ -87,3 +83,19 @@ app.get('/teknisi/:username', checkAuth, async (req, res) => {
         res.json({status: 'Not found'});
     }
 })
+
+//update status pesanan
+app.put('/orders/update/:username', async (req, res) => {
+	try{
+		const userOrder = db.collection('orders').doc(req.params.username);
+		await document.update({
+			keterangan: req.body.keterangan
+		});
+		return res.status(200).send();
+	}catch (eror){
+		console.log(error);
+		return
+		res.status(500).send(error);
+	}
+})
+	
