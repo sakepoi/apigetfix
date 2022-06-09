@@ -85,11 +85,11 @@ app.get('/teknisi/:username',  async (req, res) => {
 })
 
 //update status pesanan
-app.put('/orders/update/:username', async (req, res) => {
+app.put('/orders/update/:id', async (req, res) => {
 	try{
-		const userOrder = db.collection('orders').doc(req.params.username);
+		const userOrder = db.collection('orders').doc(req.params.id);
 		await document.update({
-			keterangan: req.body.keterangan
+			keterangan: req.params.keterangan
 		});
 		return res.status(200).send();
 	}catch (eror){
@@ -97,5 +97,19 @@ app.put('/orders/update/:username', async (req, res) => {
 		return
 		res.status(500).send(error);
 	}
+})
+
+//get teknisi by area and layanan
+app.get('/teknisi/:layanan/:wilayah', async (req, res) => {
+	const layanan = req.params.layanan;
+	const wilayah = req.params.wilayah;
+	let tkn=[]
+	const getTeknisi = await db.collection('teknisi').where('layanan', '==', layanan).where('daerah_user', '==', wilayah).get()
+	if (getTeknisi.docs.length > 0) {
+		for (const teknisi of getTeknisi.docs) {
+		ord.push(teknisi.data())
+	}}
+	res.json(tkn)
+
 })
 	
