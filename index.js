@@ -87,9 +87,10 @@ app.get('/teknisi/:username',  async (req, res) => {
 //update status pesanan
 app.put('/orders/update/:id', async (req, res) => {
 	try{
-		const userOrder = db.collection('orders').doc(req.params.id);
-		await document.update({
-			keterangan: req.params.keterangan
+		const id = req.params.id;
+		const userOrder = db.collection('orders').where('id', '==', id);
+		await userOrder.update({
+			keterangan: req.body.keterangan
 		});
 		return res.status(200).send();
 	}catch (eror){
@@ -107,7 +108,7 @@ app.get('/teknisi/:layanan/:wilayah', async (req, res) => {
 	const getTeknisi = await db.collection('teknisi').where('layanan', '==', layanan).where('daerah_user', '==', wilayah).get()
 	if (getTeknisi.docs.length > 0) {
 		for (const teknisi of getTeknisi.docs) {
-		ord.push(teknisi.data())
+		tkn.push(teknisi.data())
 	}}
 	res.json(tkn)
 
