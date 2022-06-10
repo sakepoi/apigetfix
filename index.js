@@ -86,18 +86,13 @@ app.get('/teknisi/:username',  async (req, res) => {
 
 //update status pesanan
 app.put('/orders/update/:id', async (req, res) => {
-	try{
-		const id = req.params.id;
-		const userOrder = db.collection('orders').where('id', '==', id);
-		await userOrder.update({
-			keterangan: req.body.keterangan
-		});
-		return res.status(200).send();
-	}catch (eror){
-		console.log(error);
-		return
-		res.status(500).send(error);
-	}
+	const id = req.params.id;
+	const userOrder = db.collection('orders').where('id', '==', id);
+	await userOrder.update({
+		keterangan: req.body.keterangan
+	});
+	
+	res.json({status: 'success'});
 })
 
 //get teknisi by area and layanan
