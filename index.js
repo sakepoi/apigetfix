@@ -1,5 +1,6 @@
 const express = require('express');
-const auth = require('./auth');
+const admin = require("firebase-admin");
+const credentials = require("./serviceAccountKey.json");
 const Firestore = require('@google-cloud/firestore');
 const db = new Firestore();
 const { nanoid } = require('nanoid');
@@ -10,6 +11,41 @@ app.listen(port, () => {
     console.log(`GetFix Rest API listening on port ${port}`);
 });
 
+admin.initializeApp({
+	credential: admin.credential.cert(credentials)
+});
+
+//check authtentication
+const getAuthToken = (req, res, next) => {
+	if (
+		req.headers.authorization &&
+		req.headers.authorization.split('')[0] === 'Bearer')
+		{
+		  req.authToken=req.headers.authorization.split('')[1];
+		} else{
+			req.authToken = null;
+		}
+	next ();
+};
+
+const checkAuth = (req, res, next) => {
+ getAuthToken(req, res, async () => {
+    try {
+      const { authToken } = req;
+      const userInfo = await admin
+        .auth()
+        .verifyIdToken(authToken);
+      req.authId = userInfo.uid;
+      return next();
+    } catch (e) {
+      return res
+        .status(401)
+        .send({ error: 'Anda Belum Login' });
+    }
+  });
+};
+
+//home
 app.get('/', async (req, res) => {
     res.json({status: 'GetFix is ready.'});
 })
@@ -34,7 +70,7 @@ app.post('/orders',async (req,res)=>{
 })
 
 //menampilkan data orderan berdasarkan id
-app.get('/orders/:id', async (req, res) => {
+app.get('/orders/:id', checkAuth, async (req, res) => {
     const id = req.params.id;
     const query = db.collection('orders').where('id', '==', id);
     const querySnapshot = await query.get();
