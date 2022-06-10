@@ -33,10 +33,10 @@ app.post('/orders',async (req,res)=>{
   res.json({message:'order success', data: {pesanan: data}});
 })
 
-//menampilkan data orderan berdasarkan username
-app.get('/orders/:username', async (req, res) => {
-    const username = req.params.username;
-    const query = db.collection('orders').where('username', '==', username);
+//menampilkan data orderan berdasarkan id
+app.get('/orders/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = db.collection('orders').where('id', '==', id);
     const querySnapshot = await query.get();
     if (querySnapshot.size > 0) {
         res.json(querySnapshot.docs[0].data());
