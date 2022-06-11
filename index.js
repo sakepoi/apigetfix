@@ -1,6 +1,4 @@
 const express = require('express');
-const admin = require("firebase-admin");
-const credentials = require("./serviceAccountKey.json");
 const Firestore = require('@google-cloud/firestore');
 const db = new Firestore();
 const { nanoid } = require('nanoid');
@@ -10,40 +8,6 @@ const port = process.env.PORT || 8080;
 app.listen(port, () => {
     console.log(`GetFix Rest API listening on port ${port}`);
 });
-
-admin.initializeApp({
-	credential: admin.credential.cert(credentials)
-});
-
-//check authtentication
-const getAuthToken = (req, res, next) => {
-	if (
-		req.headers.authorization &&
-		req.headers.authorization.split('')[0] === 'Bearer')
-		{
-		  req.authToken=req.headers.authorization.split('')[1];
-		} else{
-			req.authToken = null;
-		}
-	next ();
-};
-
-const checkAuth = (req, res, next) => {
- getAuthToken(req, res, async () => {
-    try {
-      const { authToken } = req;
-      const userInfo = await admin
-        .auth()
-        .verifyIdToken(authToken);
-      req.authId = userInfo.uid;
-      return next();
-    } catch (e) {
-      return res
-        .status(401)
-        .send({ error: 'Anda Belum Login' });
-    }
-  });
-};
 
 //home
 app.get('/', async (req, res) => {
@@ -70,7 +34,7 @@ app.post('/orders',async (req,res)=>{
 })
 
 //menampilkan data orderan berdasarkan id
-app.get('/orders/:id', checkAuth, async (req, res) => {
+app.get('/orders/:id', async (req, res) => {
     const id = req.params.id;
     const query = db.collection('orders').where('id', '==', id);
     const querySnapshot = await query.get();
@@ -82,7 +46,7 @@ app.get('/orders/:id', checkAuth, async (req, res) => {
     }
 })
 
-//menampilkan semua orderan user berdasarkan id_user
+//menampilkan semua orderan user berdasarkan username
 app.get('/allorder/:username', async (req, res) => {
   const username = req.params.username;
   let ord=[]
@@ -123,7 +87,7 @@ app.get('/teknisi/:username',  async (req, res) => {
 //update status pesanan
 app.put('/orders/update/:id', async (req, res) => {
 	const id = req.params.id;
-	const userOrder = db.collection('orders').where('id', '==', id);
+	const userOrder = db.collection('orders').doc(req.params.id);
 	await userOrder.update({
 		keterangan: req.body.keterangan
 	});
