@@ -87,9 +87,15 @@ app.get('/teknisi/:username',  async (req, res) => {
 //update status pesanan
 app.put('/orders/update/:id', async (req, res) => {
 	const id = req.params.id;
-	const userOrder = db.collection('orders').doc(req.params.id);
-	await userOrder.update({
-		keterangan: req.body.keterangan
+	await db.collection("orders")
+	  .where("id", "==", id)
+	  .get()
+	  .then(function(querySnapshot) {
+		querySnapshot.forEach(function(document) {
+		 document.ref.update({ 
+			keterangan : req.body.keterangan
+		 }); 
+		});
 	});
 	
 	res.json({status: 'success'});
